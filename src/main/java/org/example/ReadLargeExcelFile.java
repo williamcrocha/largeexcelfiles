@@ -1,4 +1,4 @@
-package LargeExcelFiles.largeexcelfiles;
+package org.example;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -22,13 +22,7 @@ import org.xml.sax.helpers.DefaultHandler;
 
 public class ReadLargeExcelFile {
 	
-	private PropertyChangeSupport support;
-	
-	public static void main( String[] args ) throws Exception
-    {
-		ReadLargeExcelFile readLargeExcelFile = new ReadLargeExcelFile();
-		readLargeExcelFile.processSheets("c:/Users/luisborges/Desktop/siape/d8/siape_MARÇO RJ.xlsx");
-    }
+	private final PropertyChangeSupport support;
 	
 	public ReadLargeExcelFile() {
 		super();
@@ -37,10 +31,6 @@ public class ReadLargeExcelFile {
 
 	public void addPropertyChangeListener(PropertyChangeListener pcl) {
         support.addPropertyChangeListener(pcl);
-    }
-
-    public void removePropertyChangeListener(PropertyChangeListener pcl) {
-        support.removePropertyChangeListener(pcl);
     }
 
 	public void processSheets(String filename) throws Exception {
@@ -65,8 +55,8 @@ public class ReadLargeExcelFile {
 	}
 
 	private static class SheetHandler extends DefaultHandler {
-		private SharedStringsTable sst;
-		private PropertyChangeSupport support;
+		private final SharedStringsTable sst;
+		private final PropertyChangeSupport support;
 		private String lastContents;
 		private boolean nextIsString;
 		private List<String> cols = new ArrayList<>();
@@ -78,13 +68,13 @@ public class ReadLargeExcelFile {
 		}
 
 		@Override
-		public void startElement(String uri, String localName, String name, Attributes attributes) throws SAXException {
+		public void startElement(String uri, String localName, String name, Attributes attributes) {
 			if(name.equals("row") && !cols.isEmpty()) {
 				support.firePropertyChange("row", null, cols);
 				cols = new ArrayList<>();
 			} else if (name.equals("c")) {
 				String cellType = attributes.getValue("t");
-				if (cellType != null && cellType.equals("s")) {
+				if ("s".equals(cellType)) {
 					nextIsString = true;
 				} else {
 					nextIsString = false;
@@ -94,7 +84,7 @@ public class ReadLargeExcelFile {
 		}
 
 		@Override
-		public void endElement(String uri, String localName, String name) throws SAXException {
+		public void endElement(String uri, String localName, String name) {
 			if (nextIsString) {
 				int idx = Integer.parseInt(lastContents);
 				lastContents = sst.getItemAt(idx).getString();
