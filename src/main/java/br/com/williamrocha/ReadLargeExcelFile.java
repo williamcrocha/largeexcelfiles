@@ -23,7 +23,7 @@ import org.xml.sax.helpers.DefaultHandler;
 public class ReadLargeExcelFile {
 	
 	private final PropertyChangeSupport support;
-	
+
 	public ReadLargeExcelFile() {
 		super();
 		support = new PropertyChangeSupport(this);
@@ -54,11 +54,22 @@ public class ReadLargeExcelFile {
 		return parser;
 	}
 
+	public static int columnNametoNumber(String name) {
+		name = name.replaceAll("\\d","");
+		int number = 0;
+		for (int i = 0; i < name.length(); i++) {
+			number = number * 26 + (name.charAt(i) - ('A' - 1));
+		}
+		return number;
+	}
+
 	private static class SheetHandler extends DefaultHandler {
 		private final SharedStringsTable sst;
 		private final PropertyChangeSupport support;
 		private String lastContents;
 		private boolean nextIsString;
+
+		private int lastColumn=1;
 		private List<String> cols = new ArrayList<>();
 		
 
@@ -73,6 +84,12 @@ public class ReadLargeExcelFile {
 				support.firePropertyChange("row", null, cols);
 				cols = new ArrayList<>();
 			} else if (name.equals("c")) {
+				int currentColumn=columnNametoNumber(attributes.getValue("r"));
+				while (currentColumn-1>lastColumn){
+					cols.add(null);
+					lastColumn++;
+				}
+				lastColumn=currentColumn;
 				String cellType = attributes.getValue("t");
 				if ("s".equals(cellType)) {
 					nextIsString = true;
@@ -100,4 +117,5 @@ public class ReadLargeExcelFile {
 			lastContents += new String(ch, start, length);
 		}
 	}
+
 }
