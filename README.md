@@ -1,6 +1,6 @@
 # Reading large Excel Files
 
-This is a sample project that shows hou to read large excel files returning the row content using observer pattern (using PropertyChangeListener).
+This is a sample project that shows how to read large excel files returning the row content using observer pattern (using PropertyChangeListener).
 
 ### Reference Documentation
 
